@@ -1,0 +1,39 @@
+name: Tourism Package Prediction CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check application files
+        run: |
+          test -f app.py
+          test -f requirements.txt
+          test -f model_building/tourism_package_model.pkl
+
+      - name: Test model loading
+        run: |
+          python -c "import joblib; model=joblib.load('model_building/tourism_package_model.pkl'); print('Model loaded successfully:', type(model).__name__)"
+
+      - name: Validate Streamlit app syntax
+        run: |
+          python -m py_compile app.py
+
+      - name: Pipeline completed
+        run: echo "MLOps validation pipeline completed successfully."
